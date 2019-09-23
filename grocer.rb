@@ -35,7 +35,6 @@ end
 
 def apply_clearance(cart)
   clearance_cart = {}
-  # code here	  # code here
   cart.each do |food, info|
     clearance_cart[food] = {}
     if info[:clearance] == true
