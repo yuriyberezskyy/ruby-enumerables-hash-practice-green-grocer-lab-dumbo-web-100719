@@ -28,7 +28,7 @@ def apply_coupons(cart, coupons)
       end
     end
     result[food] = info
-    result["#{food} W/COUPON"][:cost] = 2.5
+    result["#{food} W/COUPON"][:price] = 2.5
     result["#{food} W/COUPON"][:count] = 2
     
   end
