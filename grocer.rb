@@ -1,60 +1,64 @@
 def consolidate_cart(cart)
-    newHashCart = {}
-    cart.each do |itemHash,keysOfItem|
-      itemHash.each do |newNameOfItem,newKeysOfItem|
-        if newHashCart[newNameOfItem]
-          newHashCart[newNameOfItem][:count]+= 1
-        else 
-          newHashCart[newNameOfItem] = newKeysOfItem
-          newHashCart[newNameOfItem][:count] = 1
-        end
+  hash = {}
+  cart.each do |item_hash|
+    item_hash.each do |name, price_hash|
+      if hash[name].nil?
+        hash[name] = price_hash.merge({:count => 1})
+      else
+        hash[name][:count] += 1
       end
     end
-    newHashCart   
+  end
+  hash
 end
 
-
 def apply_coupons(cart, coupons)
-  result = {}
-  cart.each do |food, info|
-    coupons.each do |coupon|
-      if food == coupon[:item] && info[:count] >= coupon[:num]
-        info[:count] =  info[:count] - coupon[:num]
-        if result["#{food} W/COUPON"]
-          result["#{food} W/COUPON"][:count] += 1
-        else
-          result["#{food} W/COUPON"] = {:price => coupon[:cost], :clearance => info[:clearance], :count => 1}
-        end
-      end
-    end
-    result[food] = info
-  end
-  result
-end	
+  hash = cart
+  coupons.each do |coupon_hash|
+    # add coupon to cart
+    item = coupon_hash[:item]
 
+    if !hash[item].nil? && hash[item][:count] >= coupon_hash[:num]
+      temp = {"#{item} W/COUPON" => {
+        :price => coupon_hash[:cost],
+        :clearance => hash[item][:clearance],
+        :count => 1
+        }
+      }
+      
+      if hash["#{item} W/COUPON"].nil?
+        hash.merge!(temp)
+      else
+        hash["#{item} W/COUPON"][:count] += 1
+        #hash["#{item} W/COUPON"][:price] += coupon_hash[:cost]
+      end
+      
+      hash[item][:count] -= coupon_hash[:num]
+    end
+  end
+  hash
+end
 
 def apply_clearance(cart)
-  clearance_cart = {}
-  cart.each do |food, info|
-    clearance_cart[food] = {}
-    if info[:clearance] == true
-      clearance_cart[food][:price] = info[:price] * 4 / 5
-    else
-      clearance_cart[food][:price] = info[:price]
+  cart.each do |item, price_hash|
+    if price_hash[:clearance] == true
+      price_hash[:price] = (price_hash[:price] * 0.8).round(2)
     end
-    clearance_cart[food][:clearance] = info[:clearance]
-    clearance_cart[food][:count] = info[:count]
   end
-  clearance_cart
-end	
+  cart
+end
 
-def checkout(cart, coupons)
-  cart = consolidate_cart(cart)
-  cart = apply_coupons(cart, coupons: coupons)
-  cart = apply_clearance( cart)
-  result = 0
-  cart.each do |food, info|
-    result += (info[:price] * info[:count]).to_f
+def checkout(items, coupons)
+  cart = consolidate_cart(items)
+  cart1 = apply_coupons(cart, coupons)
+  cart2 = apply_clearance(cart1)
+  
+  total = 0
+  
+  cart2.each do |name, price_hash|
+    total += price_hash[:price] * price_hash[:count]
   end
-  result > 100 ? result * 0.9 : result
+  
+  total > 100 ? total * 0.9 : total
+  
 end
