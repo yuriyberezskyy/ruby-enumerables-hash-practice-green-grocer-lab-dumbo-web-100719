@@ -20,6 +20,7 @@ def apply_coupons(cart, coupons)
     coupons.each do |coupon|
       if food == coupon[:item] && info[:count] >= coupon
         info[:count] =  info[:count] - coupon[:num]
+        
         if result["#{food} W/COUPON"]
           result["#{food} W/COUPON"][:count] += 1
         else
