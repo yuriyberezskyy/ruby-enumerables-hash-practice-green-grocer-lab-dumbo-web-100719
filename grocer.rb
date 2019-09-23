@@ -46,7 +46,7 @@ def apply_clearance(cart)
     clearance_cart[food][:count] = info[:count]
   end
   clearance_cart
-end	end
+end	
 
 def checkout(cart, coupons)
    
